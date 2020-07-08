@@ -1,3 +1,4 @@
+def dockerImg
 pipeline {
     agent {
       docker {
@@ -11,24 +12,28 @@ pipeline {
                 sh 'mvn -B -DskipTests clean package'
                 sh "sudo chown -R $USER: ${WORKSPACE}"
             }
-          
         }
         stage('Build Docker Img'){
-
+          script {
             writeFile file: "Dockerfile", text: """FROM java:8-jdk-alpine
             COPY ./target/my-app-1.0-SNAPSHOT.jar /usr/app/
             WORKDIR /usr/app
             EXPOSE 8080
             ENTRYPOINT ["java", "-jar", "my-app-1.0-SNAPSHOT.jar"]
-"""
-
+          """
             dockerImg = docker.build("example/simple-java-project", '.')
+          }
+
         }
 
         stage('Push Docker Img') {
+          script{
             docker.withRegistry('http://localhost:8082') {
                 dockerImg.push("1.0")
             }
+
+          }
+
         }
         stage('Test') {
             steps {
