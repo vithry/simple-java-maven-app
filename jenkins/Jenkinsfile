@@ -9,8 +9,9 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'mvn -B -DskipTests clean package'
+                sh "sudo chown -R $USER: ${WORKSPACE}"
             }
-            sh "sudo chown -R $USER: ${WORKSPACE}"
+          
         }
         stage('Build Docker Img'){
 
